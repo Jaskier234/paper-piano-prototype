@@ -1,11 +1,11 @@
 import cv2
 import requests
 import numpy as np
+from sequence import Sequence
 
 
 class Keyboard():
-    def __init__(self, capture, debug=False):
-        self.capture = capture
+    def __init__(self, debug=False):
         self.debug = debug
 
     @staticmethod
@@ -44,20 +44,20 @@ class Keyboard():
 
         return [getMarkPos(cont) for cont in filtered_contours]
 
-    def refresh(self):
-        img_res = requests.get("http://192.168.1.101:8080/shot.jpg")
-        img_arr = np.array(bytearray(img_res.content), dtype=np.uint8)
-        frame = cv2.imdecode(img_arr, -1)
-#       ret, laptop = self.capture.read()
-
+    def refresh(self, frame):
         # get points from frame
+        seq_frame = frame.copy()
         points = Keyboard.getPointsFromFrame(frame)
-
         for x, y in points:
             cv2.circle(frame, (x, y), 2, (0, 0, 255), 3)
 
+        marks = Sequence(points).marks
+        for x, y in marks:
+            cv2.circle(seq_frame, (x, y), 2, (0, 0, 255), 3)
+
         if self.debug:
             cv2.imshow('frame', frame)
+            cv2.imshow('seq_frame', seq_frame)
 #           cv2.imshow('cont', contour_img)
 
         # generate sequences based on points
@@ -69,9 +69,14 @@ class Keyboard():
 
 if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
-    k = Keyboard(cap, True)
+    k = Keyboard(True)
     while(True):
-        k.refresh()
+        img_res = requests.get("http://192.168.1.101:8080/shot.jpg")
+        img_arr = np.array(bytearray(img_res.content), dtype=np.uint8)
+        frame = cv2.imdecode(img_arr, -1)
+#       ret, frame = self.capture.read()
+
+        k.refresh(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
