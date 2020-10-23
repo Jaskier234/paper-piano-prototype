@@ -22,13 +22,14 @@ class Point():
         return "(" + str(self.x) + ", " + str(self.y) + ")"
 
     def __eq__(self, other):
-        EPS = 25
-        return abs(other.x - (self.x*k)) <= EPS and abs(other.y - (self.y*k)) <= EPS
+        EPS = 5
+        return abs(other.x - self.x) <= EPS and abs(other.y - self.y) <= EPS
 
 
 class Sequence():
     def __init__(self, points):
         points.sort()
+        points = [Point(x, y) for (x, y) in points]
         longest_sequences = []
         self.marks = []
 
@@ -63,15 +64,18 @@ class Sequence():
                 k = 1
                 sequence_ij = None
                 for seq in longest_sequences[j]:
-                    if seq.delta == delta * k and appended is not None:  # Sequence.fuzzyEqual(seq[0], delta, k) and not appended:
-                        # can extend sequence
+                    # first sequence will be chosen (should we minimize error when comparing?)
+                    if seq.delta == delta * k and sequence_ij is None:  # Sequence.fuzzyEqual(seq[0], delta, k) and not appended:
+                        # sequence can be extended
+#                       print('extending', p, delta, seq.length)
                         # TODO new entry delta should be delta (new) or seq.delta (old)?
                         sequence_ij = Entry(seq.delta, seq, seq.length + 1, i)
                         # sequences_i.append()  # (seq[0], j, seq[2] + 1))
                         # appended = True
                         # print('appended', k, delta)
 
-                if appended is None:
+                if sequence_ij is None:
+                    # if no sequence can be extended create new one consisting of points i and j
                     prev_entry = Entry(None, None, 1, j)
                     sequence_ij = Entry(delta, prev_entry, 2, i)
                     # sequences_i.append(Entry(delta, j, 2, i))
@@ -80,6 +84,10 @@ class Sequence():
                     best = sequence_ij
 
                 sequences_i.append(sequence_ij)
+
+            longest_sequences.append(sequences_i)
+
+        print(best.delta, best.length)
 
 #       for i, p in enumerate(points):
 #           longest_sequences_til_i = []
@@ -104,30 +112,30 @@ class Sequence():
 
 #           longest_sequences.append(longest_sequences_til_i)
 
-        print('retrieving best sequence')
-        current = best[1]
-        if current == -1:
-            self.marks = []
-            return
+#       print('retrieving best sequence')
+#       current = best[1]
+#       if current == -1:
+#           self.marks = []
+#           return
 
-        self.marks.append(points[current])
-        while True:
-            entry = None
-            for seq in longest_sequences[current]:
-                if Sequence.fuzzyEqual(seq[0], best[0][0]):
-                    entry = seq
-                    break
+#       self.marks.append(points[current])
+#       while True:
+#           entry = None
+#           for seq in longest_sequences[current]:
+#               if Sequence.fuzzyEqual(seq[0], best[0][0]):
+#                   entry = seq
+#                   break
 
-            if entry is None:
-                break
+#           if entry is None:
+#               break
 
-            current = entry[1]
-            self.marks.append(points[current])
+#           current = entry[1]
+#           self.marks.append(points[current])
 
-        self.marks.reverse()
+#       self.marks.reverse()
 
-        print("filling the gaps")
-        self.marks = Sequence.fillGaps(self.marks, best[0][0])
+#       print("filling the gaps")
+#       self.marks = Sequence.fillGaps(self.marks, best[0][0])
 
     @staticmethod
     def fillGaps(points, delta):
@@ -147,28 +155,20 @@ class Sequence():
 
         return filled_gaps
 
-#   @staticmethod
-#   def vector(point1, point2):
-#       return (point2[0] - point1[0], point2[1] - point1[1])
-
-#   def fuzzyEqual(point1, point2, k=1):
-#       EPS = 25
-#       return abs(point2[0] - (point1[0]*k)) <= EPS and abs(point2[1] - (point1[1]*k)) <= EPS
-
 
 if __name__ == '__main__':
-#   points = [(128, 470), (43, 390), (38, 380), (73, 346), (120, 342), (95, 236), (95, 236), (165, 338), (136, 232),
-#             (136, 232), (175, 228), (175, 228), (215, 224), (215, 224), (254, 220), (254, 220), (432, 296),
-#             (293, 216), (293, 216), (5, 196), (127, 101), (128, 101), (153, 95), (153, 95), (465, 87), (284, 84),
-#             (284, 84), (413, 73), (413, 73), (541, 62), (541, 62)]
+    points = [(128, 470), (43, 390), (38, 380), (73, 346), (120, 342), (95, 236), (95, 236), (165, 338), (136, 232),
+              (136, 232), (175, 228), (175, 228), (215, 224), (215, 224), (254, 220), (254, 220), (432, 296),
+              (293, 216), (293, 216), (5, 196), (127, 101), (128, 101), (153, 95), (153, 95), (465, 87), (284, 84),
+              (284, 84), (413, 73), (413, 73), (541, 62), (541, 62)]
 
 #   points1 = [(0, 0), (20, 30), (30, 10), (60, 20), (80, 10), (90, 30)]
 
 #   to_fill = [(0, 0), (0, 1), (0, 4), (0, 7)]
 
-#   seq = Sequence(points)
+    seq = Sequence(points)
 #   print(seq.marks)
-    p1 = Point(1, 2)
-    p2 = Point(6, -1)
-    print(p1, p2, p1 * 3)
-    print(p1, p2, p1-p2)
+#   p1 = Point(1, 2)
+#   p2 = Point(6, -1)
+#   print(p1, p2, p1 * 3)
+#   print(p1, p2, p1-p2)
