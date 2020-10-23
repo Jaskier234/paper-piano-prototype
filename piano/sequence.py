@@ -43,12 +43,7 @@ class Sequence():
             def __lt__(self, other):
                 return self.length < other.length
 
-#       class Best():
-#           def __init__(self, entry=None, last_id=None):
-#               self.entry = entry
-#               self.last_id = last_id
-
-        best = Entry()  # (((0, 0), 0, 0), -1)
+        best = None
 
         for i, p in enumerate(points):
             sequences_i = []            
@@ -67,27 +62,30 @@ class Sequence():
                     # first sequence will be chosen (should we minimize error when comparing?)
                     if seq.delta == delta * k and sequence_ij is None:  # Sequence.fuzzyEqual(seq[0], delta, k) and not appended:
                         # sequence can be extended
-#                       print('extending', p, delta, seq.length)
                         # TODO new entry delta should be delta (new) or seq.delta (old)?
                         sequence_ij = Entry(seq.delta, seq, seq.length + 1, i)
-                        # sequences_i.append()  # (seq[0], j, seq[2] + 1))
-                        # appended = True
-                        # print('appended', k, delta)
 
                 if sequence_ij is None:
                     # if no sequence can be extended create new one consisting of points i and j
                     prev_entry = Entry(None, None, 1, j)
                     sequence_ij = Entry(delta, prev_entry, 2, i)
-                    # sequences_i.append(Entry(delta, j, 2, i))
 
-                if best < sequence_ij:
+                if best is None or best < sequence_ij:
                     best = sequence_ij
 
                 sequences_i.append(sequence_ij)
 
             longest_sequences.append(sequences_i)
 
-        print(best.delta, best.length)
+#       print(best.delta, best.length)
+
+        self.marks = []
+        while best is not None:
+            self.marks.append(points[best.last_id])
+            best = best.prev
+    
+        self.marks.reverse()
+
 
 #       for i, p in enumerate(points):
 #           longest_sequences_til_i = []
