@@ -56,14 +56,15 @@ class Sequence():
 
                 # search for difference with difference delta
                 # ending in point q (with id j)
-                k = 1
                 sequence_ij = None
-                for seq in longest_sequences[j]:
-                    # first sequence will be chosen (should we minimize error when comparing?)
-                    if seq.delta == delta * k and sequence_ij is None:  # Sequence.fuzzyEqual(seq[0], delta, k) and not appended:
-                        # sequence can be extended
-                        # TODO new entry delta should be delta (new) or seq.delta (old)?
-                        sequence_ij = Entry(seq.delta, seq, seq.length + 1, i)
+                for k in range(1, 3):
+                    for seq in longest_sequences[j]:
+                        # first sequence will be chosen (should we minimize error when comparing?)
+                        # should we choose the longest entry instead of the smallest k first
+                        if seq.delta * k == delta and sequence_ij is None:  # Sequence.fuzzyEqual(seq[0], delta, k) and not appended:
+                            # sequence can be extended
+                            # TODO new entry delta should be delta (new) or seq.delta (old)?
+                            sequence_ij = Entry(seq.delta, seq, seq.length + 1, i)
 
                 if sequence_ij is None:
                     # if no sequence can be extended create new one consisting of points i and j
